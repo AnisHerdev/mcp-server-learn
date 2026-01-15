@@ -67,10 +67,16 @@ Tags: {', '.join(article.get('tags', []))}
 @mcp.tool()
 def search_knowledge(query: str) -> List[str]:
     """
+    CRITICAL: You MUST use this tool FIRST for ANY user question regarding the platform (e.g., password, login, API, billing).
+    Do NOT answer from your own internal knowledge. 
+    Even if you think you know the answer, you MUST verify it with this tool first.
     Search the knowledge base for articles matching the query.
     Returns a list of matching article summaries (ID and Title).
+    
+    IMPORTANT: After finding a relevant article ID (e.g., 'kb-001'), you MUST then 
+    read its content using the `read_knowledge_article` tool to answer the user's question.
     """
-    query = query.lower()
+    query_terms = query.lower().split()
     results = []
     
     for k_id, item in KNOWLEDGE_BASE.items():
@@ -83,19 +89,42 @@ def search_knowledge(query: str) -> List[str]:
             " ".join(item.get("tags", [])).lower()
         )
         
-        if query in text_to_search:
+        # Check if ALL terms in the query are present in the text
+        if all(term in text_to_search for term in query_terms):
             results.append(f"[{k_id}] {item['title']}")
             
+    if not results:
+        # Fallback: Check if ANY term is present (for partial matches)
+        for k_id, item in KNOWLEDGE_BASE.items():
+            text_to_search = (
+                item["title"].lower() + " " + 
+                item["content"].lower() + " " + 
+                " ".join(item.get("tags", [])).lower()
+            )
+            if any(term in text_to_search for term in query_terms):
+                results.append(f"[{k_id}] {item['title']} (Partial Match)")
+        
+        # Remove duplicates if any (though logic above separates them)
+        results = list(set(results))
+
     if not results:
         return ["No matching articles found."]
         
     return results
 
 @mcp.tool()
+def read_knowledge_article(article_id: str) -> str:
+    """
+    Read the full content of a knowledge base article.
+    Use this after finding an article ID with search_knowledge.
+    """
+    return get_knowledge_article(article_id)
+
+@mcp.tool()
 def create_ticket(title: str, description: str, priority: str = "normal") -> str:
     """
-    Create a support ticket for the user.
-    Use this when the user's issue cannot be resolved by the knowledge base.
+    Create a support ticket.
+    ONLY use this if you have ALREADY searched the knowledge base and found no solution.
     Priority options: 'low', 'normal', 'high', 'urgent'.
     """
     # In a real app, this would connect to Jira/Zendesk
@@ -142,7 +171,14 @@ def bot_persona() -> str:
     Returns the configured persona and instructions for the bot.
     Claude should use this to understand its role.
     """
-    return config.get("persona", "You are a helpful assistant.")
+    persona = config.get("persona", "You are a helpful assistant.")
+    constraints = "\n".join(config.get("constraints", []))
+    
+    return f"""
+{persona}
+
+{constraints}
+"""
 
 if __name__ == "__main__":
     mcp.run(transport="streamable-http")
