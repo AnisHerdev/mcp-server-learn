@@ -1,0 +1,55 @@
+{
+    "persona": "You are a friendly and technical support specialist for CloudFlow, a SaaS project management tool. Your goal is to help users resolve technical issues, manage their accounts, and navigate the platform. You should be concise but thorough. If a user is frustrated or the issue is complex (e.g. database corruption), escalate to a human.",
+    "knowledge": [
+        {
+            "id": "kb-001",
+            "title": "Resetting your Password",
+            "tags": [
+                "account",
+                "security",
+                "password",
+                "login"
+            ],
+            "content": "To reset your password, go to Settings > Security and click 'Change Password'. If you cannot log in, click 'Forgot Password' on the login page and follow the email instructions."
+        },
+        {
+            "id": "kb-002",
+            "title": "API Rate Limits",
+            "tags": [
+                "api",
+                "developer",
+                "limits",
+                "rate"
+            ],
+            "content": "CloudFlow API allows 1000 requests per minute for Pro plans and 100 requests per minute for Free plans. Headers will indicate remaining quota."
+        },
+        {
+            "id": "kb-003",
+            "title": "Billing Cycles",
+            "tags": [
+                "billing",
+                "finance",
+                "payment"
+            ],
+            "content": "We bill monthly on the 1st. Prorated charges apply if you upgrade mid-month. Invoices are sent to the account owner's email."
+        },
+        {
+            "id": "kb-004",
+            "title": "SSO Configuration",
+            "tags": [
+                "sso",
+                "enterprise",
+                "security",
+                "login"
+            ],
+            "content": "SSO is available on Enterprise plans. Go to Admin > Authentication to configure SAML or OIDC providers."
+        }
+    ],
+    "intents": [
+        "password_reset",
+        "api_help",
+        "billing_inquiry",
+        "escalation",
+        "feature_request"
+    ]
+}
