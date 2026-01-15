@@ -12,17 +12,19 @@ from mcp.server.fastmcp import FastMCP, Context
 # Initialize FastMCP
 mcp = FastMCP("KnowledgeBot", json_response=True)
 
+import os
+
 # Load Configuration
-CONFIG_PATH = "knowledge_bot/config.json"
+# Get the directory where bot.py is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 
 def load_config() -> Dict:
     try:
         with open(CONFIG_PATH, "r") as f:
             return json.load(f)
     except FileNotFoundError:
-        # Fallback if running from inside the directory
-        with open("config.json", "r") as f:
-            return json.load(f)
+        return {"error": f"Config file not found at {CONFIG_PATH}"}
 
 config = load_config()
 KNOWLEDGE_BASE = {item["id"]: item for item in config.get("knowledge", [])}
